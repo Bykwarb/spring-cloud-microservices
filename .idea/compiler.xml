@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="eureka-service" />
         <module name="config-server" />
+        <module name="organization-service" />
         <module name="book-rebuild" />
         <module name="license-service" />
       </profile>
@@ -23,6 +24,7 @@
       <module name="eureka-service" options="-parameters" />
       <module name="license-server" options="-parameters" />
       <module name="license-service" options="-parameters" />
+      <module name="organization-service" options="-parameters" />
     </option>
   </component>
 </project>
