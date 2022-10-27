@@ -16,7 +16,7 @@
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2021.0.4</spring-cloud.version>
-        <docker.image.prefix>ostock</docker.image.prefix>
+        <docker.image.prefix>bykwarb</docker.image.prefix>
     </properties>
     <dependencies>
         <dependency>
@@ -58,6 +58,7 @@
                 <configuration>
                     <repository>${docker.image.prefix}/${project.artifactId}</repository>
                     <tag>${project.version}</tag>
+                    <pullNewerImage>false</pullNewerImage>
                     <buildArgs>
                         <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
                     </buildArgs>
