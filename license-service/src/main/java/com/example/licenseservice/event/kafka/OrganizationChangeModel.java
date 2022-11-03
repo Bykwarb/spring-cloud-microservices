@@ -1,4 +1,4 @@
-package com.example.licenseservice.kafka;
+package com.example.licenseservice.event.kafka;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

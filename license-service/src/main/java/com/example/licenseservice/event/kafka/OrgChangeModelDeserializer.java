@@ -1,4 +1,4 @@
-package com.example.licenseservice.kafka;
+package com.example.licenseservice.event.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;

@@ -1,107 +1,51 @@
-version: '2.1'
+version: '3.7'
 services:
-  database:
-    image: mysql:latest
-    ports:
-      - "3307:3307"
+  Elasticsearch:
+    image: elasticsearch:7.9.2
+    container_name: elasticserch
     environment:
-      - MYSQL_DATABASE=ostock_dev
-      - MYSQL_ROOT_PASSWORD=Xxagrorog123
+      discovery.type: single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    networks:
+      - elk
 
-
+  Logstash:
+    image: logstash:7.9.2
+    container_name: logstash
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
-      - ./data.sql:/docker-entrypoint-initdb.d/2-data.sql
-    networks:
-      backend:
-        aliases:
-          - "database"
-  configserver:
-    image: bykwarb/config-server:0.0.1-SNAPSHOT
-    ports:
-      - "8071:8071"
-    environment:
-      ENCRYPT_KEY: "10maupovka03"
-    networks:
-      backend:
-        aliases:
-          - "config-server"
-  eurekaserver:
-    image: bykwarb/eureka-service:0.0.1-SNAPSHOT
-    ports:
-      - "8070:8070"
-    environment:
-      CONFIGSERVER_URI: "http://localhost:8071"
-      CONFIGSERVER_PORT: "8071"
+        - type: bind
+          source: ./config/
+          target: /usr/share/logstash/pipeline
     depends_on:
-      configserver:
-        condition: service_started
-    networks:
-      backend:
-        aliases:
-          - "eureka-service"
-  gatewayserver:
-    image: bykwarb/gateway-server:0.0.1-SNAPSHOT
+      - Elasticsearch
     ports:
-      - "8072:8072"
+      - '9600:9600'
     environment:
-      PROFILE: "default"
-      SERVER_PORT: "8072"
-      CONFIGSERVER_URI: "http://localhost:8071"
-      EUREKASERVER_URI: "http://localhost:8070/eureka/"
-      EUREKASERVER_PORT: "8070"
-      CONFIGSERVER_PORT: "8071"
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk
+
+  Kibana:
+    image: kibana:7.9.2
+    container_name: kibana
+    ports:
+      - '5601:5601'
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
     depends_on:
-      configserver:
-        condition: service_started
-      eurekaserver:
-        condition: service_started
+      - Elasticsearch
     networks:
-      backend:
-        aliases:
-          - "gateway"
-  licenseservice:
-    image: bykwarb/license-service:0.0.1-SNAPSHOT
-    environment:
-      PROFILE: "dev"
-      CONFIGSERVER_URI: "http://clocalhost:8071"
-      CONFIGSERVER_PORT:   "8071"
-      DATABASESERVER_PORT: "3307"
-      ENCRYPT_KEY:       "10maupovka03"
-    depends_on:
-      configserver:
-        condition: service_started
-    ports:
-      - "8080:8080"
-    networks:
-      - backend
-  organizationservice:
-    image: bykwarb/organization-service:0.0.1-SNAPSHOT
-    environment:
-      PROFILE: "dev"
-      CONFIGSERVER_URI: "http://localhost:8071"
-      CONFIGSERVER_PORT:   "8071"
-      DATABASESERVER_PORT: "3307"
-      ENCRYPT_KEY:       "IMSYMMETRIC"
-    depends_on:
-      configserver:
-        condition: service_started
-    ports:
-      - "8081:8081"
-    networks:
-      - backend
-  keycloak:
-    image: jboss/keycloak
-    restart: always
-    environment:
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
-    ports:
-      - "8084:8084"
-    networks:
-      backend:
-        aliases:
-          - "keycloak"
+      - elk
+
+volumes:
+  elastic_data:
+    driver: local
+
 networks:
-  backend:
-    driver: bridge
+  elk:

@@ -11,7 +11,9 @@ public class RedisConfig {
 
     @Bean
     JedisConnectionFactory jedisConnectionFactory() {
-        return new JedisConnectionFactory();
+        JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory();
+        jedisConnectionFactory.getPoolConfig().setMinIdle(128);
+        return jedisConnectionFactory;
     }
 
     @Bean
@@ -19,6 +21,8 @@ public class RedisConfig {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory());
         template.setValueSerializer(new GenericToStringSerializer<>(Object.class));
+        template.setEnableTransactionSupport(true);
+        template.setExposeConnection(true);
         return template;
     }
 }

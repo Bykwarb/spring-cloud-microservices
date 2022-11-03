@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Setter
 @ToString
 @RedisHash("Organization")
-public class Organization extends RepresentationModel<Organization> implements Serializable {
+public class Organization implements Serializable {
     String id;
     String name;
     String contactName;
